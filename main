@@ -2,13 +2,13 @@ import time
 import random
 import os
 import sys
-import cmd
+import subprocess
 
 
 
 
 
-#UNDER CONSTRUCTION
+
 class Weapons:
     def __init__(self, name, damage):
         self.name = name
@@ -92,11 +92,11 @@ def main():
         option = input("> ").lower()
         if option == 'play':
             prompt()
-            start_game()
         elif option == 'exit':
             sys.exit()
         else:
             print("Please input valid command('start' or 'quit')")
+    subprocess.run(['python', 'maze.py'], check=True)
 
 
 
@@ -131,8 +131,6 @@ BEWARE! the maze is filled with dirty monsters that can easily defile you if you
     input("input any key to continue... \n")
     os.system('cls')
 
-def start_game():
-    pass
 
 
 
@@ -159,8 +157,7 @@ def start_game():
 
 
 
-
-def print_text_slowly(text, delay=0.03):
+def print_text_slowly(text, delay=0.001):
     for char in text:
         print(char, end='', flush=True)
         time.sleep(delay)
