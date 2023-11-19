@@ -53,7 +53,7 @@ BEWARE! the maze is filled with dirty monsters that can easily defile you if you
     os.system('cls')
 
 
-def print_text_slowly(text, delay=0.001):
+def print_text_slowly(text, delay=0.03):
     for char in text:
         print(char, end='', flush=True)
         time.sleep(delay)
