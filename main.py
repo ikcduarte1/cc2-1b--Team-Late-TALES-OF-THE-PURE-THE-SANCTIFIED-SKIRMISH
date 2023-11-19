@@ -2,85 +2,11 @@ import time
 import random
 import os
 import sys
-import subprocess
+import curses
+import random
+import entities
 
-
-
-
-
-
-class Weapons:
-    def __init__(self, name, damage):
-        self.name = name
-        self.damage = damage
-    def attack(self):
-        print(f"Your character used {self.name} to attack and dealth {self.damage} damage!")
-    class CurrentWeapon:
-        def __init__(self, current_weapon):
-            self.current_weapon = current_weapon
-        def replace(self, new_weapon):
-            self.current_weapon = new_weapon
-            print(f"Replaced current weapon to {new_weapon.name}")
-
-
-Broom = Weapons("Broom", random.randint(5,10))
-WaterGun = Weapons("Water Gun", random.randint(10,20))
-Vaccum = Weapons("Vaccum", random.randint(30,50))
-BleachBane = Weapons("Bleach Bane", random.randint(50, 100))
-
-class Enemy:
-    def __init__(self, name, damage, health):
-        self.name = name
-        self.damage = damage
-        self.health = health
-    
-    def attack(self):
-        print(f"The {self.name} attacks you for {self.damage} damage")
-
-    def attacked(self):
-        print(f"The current health of {self.name} is {self.health}")
-        if self.health <= 0:
-            print(f"The {self.name} has died")
-    
-
-Pollutant = Enemy("Pollutant", 5, 20)
-Toxigore = Enemy("Toxigore", 10, 15)
-Contaminoid = Enemy("Contaminoid", 100, 50)
-Pollutiax = Enemy("Pollutiax", 20, 500)
-
-
-class Treasures:
-    def __init__(self, name):
-        self.name = name
-
-safeguard_gun = Treasures("Safeguard Gun")
-shampoo_portal_juice = Treasures("Shampoo Portal Juice")
-shower_head = Treasures("Shower Head")
-
-
-
-class Character:
-    
-    alive = True
-    def __init__(self, health, collected_treasures, weapon):
-        self.health = health
-        self.collected_treasures = collected_treasures
-        self.weapon = weapon
-    
-    def heal(self):
-        pass
-        
-
-    def attacked(self):
-        print(f"Your current health is {self.health}")
-        if self.health <= 0:
-            print("You have DIED!")
-            alive = False
-
-
-myCharacter = Character(100, [], Broom)
-
-def main():
+def prompt():
     print("#######################################")
     print(" HEY! WOULD YOU LIKE TO PLAY OUR GAME? ")
     print("#######################################")
@@ -91,17 +17,12 @@ def main():
     while option not in ['play','exit']: 
         option = input("> ").lower()
         if option == 'play':
-            prompt()
+            introduction()
         elif option == 'exit':
             sys.exit()
         else:
             print("Please input valid command('start' or 'quit')")
-    subprocess.run(['python', 'maze.py'], check=True)
-
-
-
-
-def prompt():
+def introduction():
     print("################################################")
     print("THANK YOU FOR CHOOSING TO PLAY OUR GAME, ENJOY!")
     print("################################################")
@@ -132,36 +53,86 @@ BEWARE! the maze is filled with dirty monsters that can easily defile you if you
     os.system('cls')
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def print_text_slowly(text, delay=0.03):
+def print_text_slowly(text, delay=0.001):
     for char in text:
         print(char, end='', flush=True)
         time.sleep(delay)
     print()
     return "> "
 
-main()
+
+
+def generate_maze(rows, cols):
+    maze = [['#' for _ in range(cols)] for _ in range(rows)]
+    stack = [(1, 1)]
+
+    while stack:
+        current_cell = stack[-1]
+        maze[current_cell[0]][current_cell[1]] = ' '
+
+        neighbors = [
+            (current_cell[0] - 2, current_cell[1]),
+            (current_cell[0] + 2, current_cell[1]),
+            (current_cell[0], current_cell[1] - 2),
+            (current_cell[0], current_cell[1] + 2),
+        ]
+        unvisited_neighbors = [neighbor for neighbor in neighbors if 0 < neighbor[0] < rows and 0 < neighbor[1] < cols and maze[neighbor[0]][neighbor[1]] == '#']
+
+        if unvisited_neighbors:
+            next_cell = random.choice(unvisited_neighbors)
+            maze[(current_cell[0] + next_cell[0]) // 2][(current_cell[1] + next_cell[1]) // 2] = ' '
+            stack.append(next_cell)
+        else:
+            stack.pop()
+
+    return maze
+
+def print_maze(stdscr, maze, player_pos):
+    for i, row in enumerate(maze):
+        for j, cell in enumerate(row):
+            if (i, j) == player_pos:
+                stdscr.addch(i, j * 2, 'P')
+            else:
+                stdscr.addch(i, j * 2, cell)
+
+def move_player(player_pos, key):
+    row, col = player_pos
+    if key == curses.KEY_UP:
+        return row - 1, col
+    elif key == curses.KEY_DOWN:
+        return row + 1, col
+    elif key == curses.KEY_LEFT:
+        return row, col - 1
+    elif key == curses.KEY_RIGHT:
+        return row, col + 1
+    else:
+        return player_pos
+
+def main(stdscr):
+    
+    curses.curs_set(0)  
+    stdscr.clear()
+
+    rows = 11
+    cols = 21
+    maze = generate_maze(rows, cols)
+    player_pos = (1, 1)
+
+    while True:
+        stdscr.clear()
+        print_maze(stdscr, maze, player_pos)
+        stdscr.refresh()
+
+        key = stdscr.getch()
+
+        if key == 27:  # 27 is the ASCII code for the Esc key
+            break
+
+        new_pos = move_player(player_pos, key)
+        if 0 <= new_pos[0] < rows and 0 <= new_pos[1] < cols and maze[new_pos[0]][new_pos[1]] != '#':
+            player_pos = new_pos
+
+if __name__ == "__main__":
+    prompt()
+    curses.wrapper(main)
+
