@@ -1,4 +1,3 @@
-import time
 import random
 
 
@@ -35,6 +34,9 @@ class Enemy:
         if self.health <= 0:
             print(f"The {self.name} has died")
     
+    def __str__(self):
+        return f"You have encountered a {self.name}"
+    
 
 Pollutant = Enemy("Pollutant", 5, 20)
 Toxigore = Enemy("Toxigore", 10, 15)
@@ -69,6 +71,13 @@ class Character:
         if self.health <= 0:
             print("You have DIED!")
             alive = False
+
+
+myCharacter = Character(100, [], Broom)
+
+
+
+
 
 
 myCharacter = Character(100, [], Broom)
