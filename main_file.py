@@ -4,7 +4,12 @@ import os
 import sys
 import curses
 import random
-import additional
+from entities import Player
+from entities import Enemy
+from entities import Treasures
+from entities import Weapons
+from entities import Pots
+import gameplay
 
 
 def prompt():
@@ -31,7 +36,7 @@ def introduction():
     print("-----------------------------------------------")
     print("THANK YOU FOR CHOOSING TO PLAY OUR GAME, ENJOY!")
     print("-----------------------------------------------")
-    additional.press_any_key_to_continue
+    press_any_key_to_continue
     os.system('cls')
  
     introduction = """Welcome to 'Tales of the Pure: The Sanctified Skirmish' a thrilling adventure game that takes you on a journey
@@ -42,23 +47,31 @@ As the protagonist, you must navigate through polluted landscapes, engage in cha
 adversaries, and collect treasures, all while armed with an arsenal of unique cleaning tools and gadgets. 
 Your quest is to vanquish the vile forces of dirt and grime, and cleanse the world from their corruption and filth."""
 
-    additional.print_text_slowly(introduction)
-    additional.press_any_key_to_continue()
+    print_text_slowly(introduction)
+    press_any_key_to_continue()
     os.system('cls')
-    character_name = input(additional.print_text_slowly("What is your characters name:"))
-    additional.print_text_slowly(f"Welcome {character_name}!, your quest begins now!")
-    additional.press_any_key_to_continue()
+    character_name = input(print_text_slowly("What is your characters name:"))
+    print_text_slowly(f"Welcome {character_name}!, your quest begins now!")
+    press_any_key_to_continue()
     os.system('cls')
 
     instructions = f"""Your goal is to find all 3 hidden treasures randomly placed around the maze, when you find these 
-    treasures you are then ableto open a portal that brings you to Pollutiax's lair, there you can defeat him and free 
-    the world of his corruption and filth. BEWARE! the maze is filled with dirty monsters that can easily defile you 
-    if you aren't careful! GOOD LUCK! {character_name}"""
-    additional.print_text_slowly(instructions)
-    additional.press_any_key_to_continue()
+treasures you are then ableto open a portal that brings you to Pollutiax's lair, there you can defeat him and free 
+the world of his corruption and filth. BEWARE! the maze is filled with dirty monsters that can easily defile you 
+if you aren't careful! GOOD LUCK! {character_name}"""
+    print_text_slowly(instructions)
+    press_any_key_to_continue()
     os.system('cls')
 
+def print_text_slowly(text, delay=0.0001):
+    for char in text:
+        print(char, end='', flush=True)
+        time.sleep(delay)
+    print()
+    return "> "
 
+def press_any_key_to_continue():
+    input("Press Enter to continue...")
 
 
 def generate_maze(rows, cols):
@@ -84,7 +97,28 @@ def generate_maze(rows, cols):
         else:
             stack.pop()
 
+    place_treasures(maze, rows, cols)
     return maze
+
+def place_treasures(maze, rows, cols):
+    treasures = 0
+    min_distance_between_treasures = 4  # Adjust this value based on your preference
+
+    def distance(pos1, pos2):
+        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+
+    while treasures < 3:
+        row = random.randint(0, rows - 1)
+        col = random.randint(0, cols - 1)
+
+        if maze[row][col] == ' ' and (row, col) != (1, 1):  # Ensure it's not the starting position
+            # Check proximity with existing treasures
+            too_close = any(distance((row, col), treasure) < min_distance_between_treasures for treasure in [(i, j) for i in range(rows) for j in range(cols) if maze[i][j] == 'T'])
+
+            if not too_close:
+                maze[row][col] = 'T'
+                treasures += 1
+
 
 def print_maze(stdscr, maze, player_pos):
     for i, row in enumerate(maze):
@@ -93,6 +127,7 @@ def print_maze(stdscr, maze, player_pos):
                 stdscr.addch(i, j * 2, 'P')
             else:
                 stdscr.addch(i, j * 2, cell)
+
 
 def move_player(player_pos, key):
     row, col = player_pos
@@ -107,25 +142,14 @@ def move_player(player_pos, key):
     else:
         return player_pos
 
-def encounter_enemy():
-    from entities import Enemy
-    Pollutant = Enemy("Pollutant", 5, 20)
-    Toxigore = Enemy("Toxigore", 10, 15)
-    Contaminoid = Enemy("Contaminoid", 100, 50)
-    Pollutiax = Enemy("Pollutiax", 20, 500)
-    chance = random.randint(1, 100)
-    if chance <= 60:
-        pass
-    elif chance <= 85:
-        return Pollutant
-    elif chance <= 95:
-        return Toxigore
-    elif chance <= 100:
-        return Contaminoid
 
-def display_status(stdscr, status):
-    stdscr.addstr(curses.LINES - 18, 0, status, curses.A_REVERSE)
-    stdscr.refresh()
+
+    # INSTANCES OF TREASURES CLASS
+safeguard_gun = Treasures("Safeguard Gun")
+shampoo_portal_juice = Treasures("Shampoo Portal Juice")
+shower_head = Treasures("Shower Head")
+
+collected_treasures = []
 
 def main(stdscr):
     curses.curs_set(0)
@@ -136,24 +160,29 @@ def main(stdscr):
     maze = generate_maze(rows, cols)
     player_pos = (1, 1)
 
-    while True:
-        stdscr.clear()
-        display_status(stdscr, "Move with arrow keys. Press Esc to exit.")
-        stdscr.addstr(curses.LINES - 16, 4,f"Player moved to position: {player_pos}",curses.A_BOLD)
-        stdscr.addstr(curses.LINES - 14, 17,"STATUS",curses.A_BOLD)
-        stdscr.addstr(curses.LINES - 13, 12,"---------------")
-        stdscr.addstr(curses.LINES - 12, 13,"HP: 100")
-        stdscr.addstr(curses.LINES - 11, 13,"WEAPON: BROOM")
-        stdscr.addstr(curses.LINES - 10, 13,"INVENTORY: []")
-        stdscr.addstr(curses.LINES - 9, 12,"---------------")
-        stdscr.addstr(curses.LINES - 7, 16,"GAMEPLAY",curses.A_BOLD)
-        stdscr.addstr(curses.LINES - 6, 12,"---------------")
-        stdscr.addstr(curses.LINES - 5, 6, f"{encounter_enemy()}")
-        
-        print_maze(stdscr, maze, player_pos)
-        
         
 
+    while True:
+        enemy = gameplay.encounter_enemy()
+        player = Player(250,100,10,3,3)
+  
+        gameplay.display_stats(stdscr, player, enemy)
+        if maze[player_pos[0]][player_pos[1]] == 'T':
+
+            stdscr.addstr(curses.LINES - 7, 45, f"YOU FOUND A TREASURE!")
+            stdscr.addstr(curses.LINES - 6, 45, "To place in your inventory press the Space Bar")
+            if key == ord(' '):
+                maze[player_pos[0]][player_pos[1]] = ' '
+                uncollected_treasures = [safeguard_gun.name,shampoo_portal_juice.name,shower_head.name]
+                found_treasure = random.choice(uncollected_treasures)
+                collected_treasures.append(found_treasure)
+                uncollected_treasures.remove(found_treasure)
+                stdscr.refresh()
+
+        stdscr.addstr(curses.LINES - 20, 45, f" Player moved to position: {player_pos}",curses.A_BOLD)
+        gameplay.display_commands(stdscr)
+        
+        print_maze(stdscr, maze, player_pos)
         key = stdscr.getch()
 
         if key == 27:
@@ -164,7 +193,7 @@ def main(stdscr):
             player_pos = new_pos
             
             stdscr.refresh()
-            
+
 if __name__ == "__main__":
     prompt()
     curses.wrapper(main)
