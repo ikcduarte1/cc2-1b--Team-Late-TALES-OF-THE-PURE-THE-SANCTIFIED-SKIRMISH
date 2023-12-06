@@ -11,7 +11,7 @@ Fists = Weapons(name = "Fists", damage = random.randint(5,10))
 Broom = Weapons("Broom", damage = random.randint(10, 15))
 WaterGun = Weapons("Water Gun", damage = random.randint(15, 25))
 Vaccum = Weapons("Vaccum", damage = random.randint(25, 40))
-BleachBane = Weapons("Bleach Bane", damage = random.randint(40, 100))
+BleachBane = Weapons("Bleach Bane", damage = random.randint(40, 70))
 
     # FOR ENEMIES
 Dirty_fists = Weapons("Dirty Fists", damage = random.randint(1, 10))
