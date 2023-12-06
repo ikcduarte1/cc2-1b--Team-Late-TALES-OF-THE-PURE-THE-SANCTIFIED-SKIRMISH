@@ -6,7 +6,7 @@ from weapon import Fists, Broom, WaterGun, Vaccum, BleachBane
 import sys
 
 
-player = Hero("your character", 500, stamina = 5, pots = 3)
+player = Hero("your character", 250, stamina = 5, pots = 3)
 
 
 
@@ -40,6 +40,7 @@ def combat(stdscr):
             stdscr.refresh()
 
             if player.health <= 0:
+                stdscr.clear()
                 stdscr.addstr(13, 0, "You have been defeated. Game over.")
                 stdscr.refresh()
                 sys.exit()
@@ -60,8 +61,8 @@ def combat(stdscr):
 
                     if equip_key == ord('3'):
                         player.weapon = dropped
-                        stdscr.addstr(15, 0, f"You equipped the {dropped.name}")
-                        stdscr.addstr(16, 0, "Press any key to continue...")
+                        stdscr.addstr(16, 0, f"You equipped the {dropped.name}")
+                        stdscr.addstr(17, 0, "Press any key to continue...")
                         stdscr.refresh()
                     
 
@@ -124,6 +125,7 @@ def display_stats(stdscr, player, enemy):
     stdscr.refresh()
 
 weapons_list = [None, Broom, WaterGun, Vaccum]
+
 
 
 
