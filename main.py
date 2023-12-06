@@ -2,7 +2,7 @@ import curses
 import random
 from prompt import prompt
 from combat import combat
-from boss import boss_fight
+from boss import boss
 
 
 
@@ -121,7 +121,7 @@ def main(stdscr):
         key = stdscr.getch()
 
         chance_of_encounter = random.randint(1,100)
-        if chance_of_encounter <= 60:
+        if chance_of_encounter <= 80:
             stdscr.addstr(20, 45, "No enemies in your position...")
             stdscr.refresh()
         else:
@@ -130,7 +130,8 @@ def main(stdscr):
 
 
         if len(inventory) == 3:
-            boss_fight(stdscr)
+            boss(stdscr)
+                
 
         if key == 27:
             break
