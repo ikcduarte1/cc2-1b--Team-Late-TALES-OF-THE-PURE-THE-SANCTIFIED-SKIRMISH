@@ -5,13 +5,14 @@ from entities import Hero
 from weapon import BleachBane
 
 
-player = Hero("your character", 500, 5, 3)
+
+player = Hero("your character", 250, 5, 3)
 player.equip(BleachBane)
 
 
 
 class Boss:
-    def __init__(self, health=500):
+    def __init__(self, health=1000):
         self.health = health
 
 
@@ -22,6 +23,8 @@ class Boss:
 
 def draw_boss(stdscr):
     boss_ascii = """
+BOSS BATTLE!!!
+    
      .--.
     |o_o |
     |:_/ | .--["I'M SO DIRTY!"]
@@ -56,19 +59,36 @@ def boss_fight(stdscr):
 
         if key == ord('q'):
             break
-        elif key == ord('1'):
-            player_damage = player.attack(boss)
-            boss_damage = boss.attack(player)
+        if key == ord('1'):
+            player.attack(boss)
+            boss.attack(player)
 
-            stdscr.addstr(15, 0, f"You dealt {player_damage} damage to the boss!")
-            stdscr.addstr(16, 0, f"The boss dealt {boss_damage} damage to you!")
+            stdscr.refresh()
 
             if player.health <= 0:
-                stdscr.addstr(18, 0, "You have been defeated. Game over.")
-                sys.exit()
+                stdscr.addstr(17, 0, "Game Over! Your health reached zero.")
+                stdscr.refresh()
+                break
 
             if boss.health <= 0:
-                stdscr.addstr(18, 0, "Congratulations! You defeated the boss!")
-                sys.exit()
+                stdscr.addstr(17, 0, "Congratulations! You defeated the boss!")
+                stdscr.refresh()
+                break
+                
+
+        if key == ord('2'):
+            if player.hp_pot():
+                player.hp_pot()
+            else:
+                 stdscr.addstr(13, 0, "You are out of health pots..")
+
+            
+
 
         stdscr.refresh()
+
+def boss(stdscr):
+    stdscr.clear()
+    boss_fight(stdscr)
+    stdscr.refresh()
+
