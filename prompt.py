@@ -54,7 +54,7 @@ if you aren't careful! GOOD LUCK! {character_name}"""
     press_any_key_to_continue()
     os.system('cls')
 
-def print_text_slowly(text, delay=0.03):
+def print_text_slowly(text, delay=0.1):
     for char in text:
         print(char, end='', flush=True)
         time.sleep(delay)
